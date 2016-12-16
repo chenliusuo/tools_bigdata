@@ -1,0 +1,58 @@
+#!/bin/sh
+
+usage()
+{
+    echo
+    echo "Usage: `basename $0` <ip_list_file> <remote_host_passwd>"
+    echo
+}
+
+# add_keys_to_known_hosts <local_ip> <remote_ip> <passwd>
+#
+add_keys_to_known_hosts()
+{
+    if [ $# != 3 ]; then
+        return 1
+    fi
+
+	sshpass -p$3 ssh $SSH_CFG $1 "ssh $SSH_CFG $2 "exit" && exit" >/dev/null 2>&1
+    if [ $? != '0' ]; then
+		return 1
+    fi
+
+	return 0
+}
+
+main()
+{
+    if [ $# != 2 ]; then
+        usage
+        return 1 
+    fi
+    
+    SSH_CFG="-oStrictHostKeyChecking=no"
+
+    IP_LIST=(`cat $1 | grep -v "^#"`)
+    DEF_PASSWD=$2
+    
+    echo "********************* SSH Login Testing **************************"
+    for ip_i in ${IP_LIST[@]}; do
+        for ip_j in ${IP_LIST[@]}; do
+            add_keys_to_known_hosts $ip_i $ip_j $DEF_PASSWD
+            if [ $? != '0' ]; then
+                echo
+                echo "WARNING: From \"$ip_i\" to \"$ip_j\" failed!"
+                echo
+                continue
+            fi
+
+            echo "SUCCESS: From \"$ip_i\" to \"$ip_j\""
+        done
+
+        echo
+    done
+
+    return 0
+}
+
+main $1 $2
