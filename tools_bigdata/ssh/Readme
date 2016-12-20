@@ -1,0 +1,9 @@
+本脚本用于配置服务器之间ssh免密码
+
+第一步：将本脚本拷贝至服务器
+
+第二步：以root用户登录，将“sshpass“赋予可执行文件，并拷贝至/bin目录下
+
+第三步：切换至需要配置SSH的用户，进入./ssh_nologin，将所需要配置的SSH的服务器IP写入ip.conf
+
+第四步：执行ssh_nologin_set:./ssh_nologin_set ip.conf ****（密码）
